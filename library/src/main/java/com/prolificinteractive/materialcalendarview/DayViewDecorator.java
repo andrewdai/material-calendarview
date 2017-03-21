@@ -1,5 +1,7 @@
 package com.prolificinteractive.materialcalendarview;
 
+import java.util.List;
+
 /**
  * Decorate Day views with drawables and text manipulation
  */
@@ -16,8 +18,13 @@ public interface DayViewDecorator {
     /**
      * Set decoration options onto a facade to be applied to all relevant days
      *
+     * @param data The data associated with this decorator
      * @param view View to decorate
      */
-    void decorate(DayViewFacade view);
+    void decorate(List<Object> data, DayViewFacade view);
 
+    /**
+     * Get the data associated with this decorator
+     */
+    List<Object> getData();
 }

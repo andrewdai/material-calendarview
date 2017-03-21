@@ -19,7 +19,6 @@ import java.util.List;
 import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.SHOW_DEFAULTS;
 import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.showOtherMonths;
 import static java.util.Calendar.DATE;
-import static java.util.Calendar.DAY_OF_WEEK;
 
 abstract class CalendarPagerView extends ViewGroup implements View.OnClickListener {
 
@@ -28,7 +27,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     protected static final int DAY_NAMES_ROW = 1;
     private static final Calendar tempWorkingCalendar = CalendarUtils.getInstance();
     private final ArrayList<WeekDayView> weekDayViews = new ArrayList<>();
-    private final ArrayList<DecoratorResult> decoratorResults = new ArrayList<>();
+    private final ArrayList<DayViewDecorator> decorators = new ArrayList<>();
     @ShowOtherDates
     protected int showOtherDates = SHOW_DEFAULTS;
     private MaterialCalendarView mcv;
@@ -96,10 +95,10 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
 
     protected abstract boolean isDayEnabled(CalendarDay day);
 
-    void setDayViewDecorators(List<DecoratorResult> results) {
-        this.decoratorResults.clear();
-        if (results != null) {
-            this.decoratorResults.addAll(results);
+    void setDayViewDecorators(List<DayViewDecorator> decorators) {
+        this.decorators.clear();
+        if (decorators != null) {
+            this.decorators.addAll(decorators);
         }
         invalidateDecorators();
     }
@@ -174,15 +173,15 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     protected void invalidateDecorators() {
-        final DayViewFacade facadeAccumulator = new DayViewFacade();
+        final DayViewFacade facade = new DayViewFacade();
         for (DayView dayView : dayViews) {
-            facadeAccumulator.reset();
-            for (DecoratorResult result : decoratorResults) {
-                if (result.decorator.shouldDecorate(dayView.getDate())) {
-                    result.result.applyTo(facadeAccumulator);
+            facade.reset();
+            for (DayViewDecorator decorator : decorators) {
+                if (decorator.shouldDecorate(dayView.getDate())) {
+                    decorator.decorate(decorator.getData(), facade);
                 }
             }
-            dayView.applyFacade(facadeAccumulator);
+            dayView.applyFacade(facade);
         }
     }
 
@@ -249,6 +248,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
 
     /**
      * Return the number of rows to display per page
+     *
      * @return
      */
     protected abstract int getRows();
