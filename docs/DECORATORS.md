@@ -14,10 +14,11 @@ This doc will explain how the API works and examples of how to use it.
 
 ## How It Works
 
-A `DayViewDecorator` is an interface that has only two methods you need to implement, `shouldDecorate(CalendarDay)` and `decorate(DayViewFacade)`.
+A `DayViewDecorator` is an interface that has three methods you need to implement, `shouldDecorate(CalendarDay)`, `decorate(List<Object>, DayViewFacade)`, and getData().
 `shouldDecorate()` is called for every date in the calendar to determine if the decorator should be applied to that date.
-`decorate()` is called only one time to gather the customizations used for this decorator.
-This is so we can cache the decorations and efficiently apply them to many days.
+`decorate()` is called every time `shouldDecorate()` returns true, and will render the customizations used for this specific day's facade.
+`getData()` is called internally to pass the data to the `decorate()` method to be used to change the customization of the facade if needed.
+This is so we can apply different decorations to different days without having to create a new decorator. It is significantly more expensive to have more decorators calling `shouldDecorate()` on all 42 days every month than it is to have the `decorate()` method do a little extra work to figure out how to change the facade per day.
 
 The `decorate()` method provides you with a `DayViewFacade` that has four methods to allow decoration:
 
@@ -36,6 +37,7 @@ The `decorate()` method provides you with a `DayViewFacade` that has four method
     * Allows you to disable and re-enable days.
     * This will not affect minimum and maximum dates.
     * Days decorated as disabled can be re-enabled with other decorators.
+    * Days are disabled by default
 
 If one of your decorators changes after it has been added to the calendar view,
 make sure you call `invalidateDecorators()` to have those changes reflected.
@@ -54,11 +56,6 @@ An easy way to be more efficient is to convert your data to `CalendarDay`s outsi
 If you provide custom drawables, make sure they respond to touches and states.
 Read more in the [custom selector documentation](CUSTOM_SELECTORS.md).
 
-## Examples
-
-This section details some example uses.
-You can also check out the sample app's `BasicActivityDecorated` activity for some examples.
-
 ### Events
 
 Here is a simple example decorator that will draw a dot under a set of dates.
@@ -66,22 +63,34 @@ Here is a simple example decorator that will draw a dot under a set of dates.
 ```java
 public class EventDecorator implements DayViewDecorator {
 
-    private final int color;
+    private final List<Object> dataSet;
     private final HashSet<CalendarDay> dates;
+    private CalendarDay day;
 
-    public EventDecorator(int color, Collection<CalendarDay> dates) {
-        this.color = color;
+    public EventDecorator(List<Object> dataSet, Collection<CalendarDay> dates) {
+        this.dataSet = dataSet;
         this.dates = new HashSet<>(dates);
     }
 
     @Override
     public boolean shouldDecorate(CalendarDay day) {
+        this.day = day;
         return dates.contains(day);
     }
 
     @Override
-    public void decorate(DayViewFacade view) {
-        view.addSpan(new DotSpan(5, color));
+    public void decorate(List<Object> dataSet, DayViewFacade view) {
+      //for (Object o : dataSet) {
+      //    if (o instanceof Integer) {
+      //        view.setBackgroundDrawable(Util.getDrawableBasedOnData(o);
+      //        view.addSpan(new DotSpan(5, Util.getColorBasedOnData(o));
+      //    }
+      //}
+    }
+
+    @Override
+    public List<Object> getData() {
+        return dataSet;
     }
 }
 ```
