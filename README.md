@@ -1,8 +1,6 @@
-<img src="/images/hero.png"/>
-
-Material Calendar View 
+Material Calendar View
 ======================
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Material%20Calendar%20View-blue.svg?style=flat)](https://android-arsenal.com/details/1/1531) [![Maven Central](https://img.shields.io/maven-central/v/com.prolificinteractive/material-calendarview.svg?maxAge=2592000)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22material-calendarview%22) [![Travis branch](https://img.shields.io/travis/prolificinteractive/material-calendarview.svg?maxAge=2592000)](https://travis-ci.org/prolificinteractive/material-calendarview)
+[![Maven Central](https://img.shields.io/maven-central/v/com.prolificinteractive/material-calendarview.svg?maxAge=2592000)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22material-calendarview%22)
 
 A Material design back port of Android's CalendarView. The goal is to have a Material look
 and feel, rather than 100% parity with the platform's implementation.
@@ -38,33 +36,8 @@ are allowed for testing and feedback.
 
 Major Change in 1.4.0
 ---------------------
-* Breaking Change: `setFirstDayOfWeek`, `setMin/MaxDate`, and `setCalendarDisplayMode` are moved to a `State` object. This was necessary because it was unclear that these were not simple setters--individually, they were side effecting and triggered full adapter/date range recalculations. Typical usage of the view involves setting all these invariants up front during `onCreate` and it was unknown to the user that setting all 4 of these would create a lot of waste. Not to mention certain things were side effecting--some would reset the current day or selected date. As a result, the same 4 methods called in a different order could result in a different state, which is bad.
+* Breaking Change: Allow decorators to accept a data set and moved logic to decorate the facade into the day view invalidate. This gives more flexibility to the decorator to decide how to decorate the facade when applying to the day view, and enables the ability to use different facades within the same decorator, reducing the need to add more decorators.
 
-  For most cases you will simply need to replace setting those invariants with: 
-  ```java
-  mcv.state().edit()
-    .setFirstDayOfWeek(Calendar.WEDNESDAY)
-    .setMinimumDate(CalendarDay.from(2016, 4, 3))
-    .setMaximumDate(CalendarDay.from(2016, 5, 12))
-    .setCalendarDisplayMode(CalendarMode.WEEKS)
-    .commit();
-  ```
-
-  `mcv.state().edit()` will retain previously set values; `mcv.newState()` will create a new state using default values. Calling `commit` will trigger the rebuild of adapters and date ranges. It is recommended these state changes occur as the first modification to MCV (before configuring anything else like current date or selected date); we make no guarantee those modifications will be retained when the state is modified.
-
-  See [CUSTOMIZATION_BUILDER](docs/CUSTOMIZATION_BUILDER.md) for usage details.
-* New: `setSelectionMode(SELECTION_MODE_RANGE)` was added to allow 2 dates to be selected and have the entire range of dates selected. Much thanks to [papageorgiouk](https://github.com/papageorgiouk) for his work on this feature. 
-
-See other changes in the [CHANGELOG](/CHANGELOG.md).
-
-Major Change in 1.3.0
----------------------
-* Breaking change: `getTileSize` is deprecated. Use `getTileWidth` or `getTileHeight`.
-* Added `goToNext` and `goToPrevious` API to programmatically trigger paging
-* Allow users to click on dates outside of current month with `setAllowClickDaysOutsideCurrentMonth`
-* Set tile width/height separately rather than single tile size with `setTileWidth` and `setTileHeight`
-* Attributes: mcv_tileWidth, mcv_tileHeight, mcv_calendarMode
-* TalkBack APIs: `setContentDescriptionArrowPast`, `ArrowFuture`, `Calendar`
 
 Documentation
 -------------
@@ -93,20 +66,3 @@ All of this and more can be done via the decorator api. Please check out the [de
 
 If you provide custom drawables or colors, you'll want to make sure they respond to state.
 Check out the [documentation for custom states](docs/CUSTOM_SELECTORS.md).
-
-Contributing
-============
-
-Would you like to contribute? Fork us and send a pull request! Be sure to checkout our issues first.
-
-## License
-
-Material Calendar View is Copyright (c) 2016 Prolific Interactive. It may be redistributed under the terms specified in the [LICENSE] file.
-
-[LICENSE]: /LICENSE
-
-## Maintainers
-
-![prolific](https://s3.amazonaws.com/prolificsitestaging/logos/Prolific_Logo_Full_Color.png)
-
-Material Calendar View is maintained and funded by Prolific Interactive. The names and logos are trademarks of Prolific Interactive.
