@@ -1,5 +1,9 @@
 Change Log
 ==========
+Version 1.5.0 *(2017-03-21)*
+----------------------------
+* Breaking Change: Allow decorators to accept a data set and moved logic to decorate the facade into the day view invalidate
+
 Version 1.4.3 *(2017-02-21)*
 ----------------------------
 * New: Added set click listener method for title
