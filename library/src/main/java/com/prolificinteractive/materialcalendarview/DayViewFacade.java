@@ -17,7 +17,7 @@ public class DayViewFacade {
     private Drawable backgroundDrawable = null;
     private Drawable selectionDrawable = null;
     private final LinkedList<Span> spans = new LinkedList<>();
-    private boolean daysDisabled = false;
+    private boolean daysDisabled = true;
 
     DayViewFacade() {
         isDecorated = false;
@@ -79,7 +79,7 @@ public class DayViewFacade {
         selectionDrawable = null;
         spans.clear();
         isDecorated = false;
-        daysDisabled = false;
+        daysDisabled = true;
     }
 
     /**

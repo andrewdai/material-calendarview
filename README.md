@@ -10,12 +10,10 @@ and feel, rather than 100% parity with the platform's implementation.
 Usage
 -----
 
-1. Add `compile 'com.prolificinteractive:material-calendarview:1.4.3'` to your dependencies.
+1. Add `compile 'com.andrewdai:material-calendarview:1.5.0'` to your dependencies.
 2. Add `MaterialCalendarView` into your layouts or view hierarchy.
 3. Set a `OnDateSelectedListener` or call `MaterialCalendarView.getSelectedDates()` when you need it.
 
-
-[Javadoc Available Here](http://prolificinteractive.github.io/material-calendarview/)
 
 Example:
 
@@ -34,7 +32,8 @@ Example:
 marked `@Experimental` are subject to change quickly and should not be used in production code. They
 are allowed for testing and feedback.
 
-Major Change in 1.4.0
+
+Major Change in 1.5.0
 ---------------------
 * Breaking Change: Allow decorators to accept a data set and moved logic to decorate the facade into the day view invalidate. This gives more flexibility to the decorator to decide how to decorate the facade when applying to the day view, and enables the ability to use different facades within the same decorator, reducing the need to add more decorators.
 

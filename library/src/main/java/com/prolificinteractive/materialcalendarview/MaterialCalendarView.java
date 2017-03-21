@@ -66,7 +66,7 @@ import java.util.List;
  */
 public class MaterialCalendarView extends ViewGroup {
 
-    public static final int INVALID_TILE_DIMENSION = -10;
+    public final int INVALID_TILE_DIMENSION = getResources().getDimensionPixelSize(R.dimen.INVALID_DIMEN_SIZE);
 
     /**
      * {@linkplain IntDef} annotation for selection mode.
@@ -637,13 +637,6 @@ public class MaterialCalendarView extends ViewGroup {
      * @param color The selection color
      */
     public void setSelectionColor(int color) {
-        if (color == 0) {
-            if (!isInEditMode()) {
-                return;
-            } else {
-                color = Color.GRAY;
-            }
-        }
         accentColor = color;
         adapter.setSelectionColor(color);
         invalidate();
