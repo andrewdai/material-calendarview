@@ -1,6 +1,7 @@
+This is a fork of the project originally created by Prolific Interactive. The original project can be found [here](https://github.com/prolificinteractive/material-calendarview)
+
 Material Calendar View
 ======================
-[![Maven Central](https://img.shields.io/maven-central/v/com.prolificinteractive/material-calendarview.svg?maxAge=2592000)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22material-calendarview%22)
 
 A Material design back port of Android's CalendarView. The goal is to have a Material look
 and feel, rather than 100% parity with the platform's implementation.
