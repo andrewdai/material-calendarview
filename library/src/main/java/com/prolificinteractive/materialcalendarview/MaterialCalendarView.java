@@ -234,6 +234,7 @@ public class MaterialCalendarView extends ViewGroup {
     private int selectionMode = SELECTION_MODE_SINGLE;
     private boolean allowClickDaysOutsideCurrentMonth = true;
     private int firstDayOfWeek;
+    private boolean shouldHideTopbar;
 
     private State state;
 
@@ -383,6 +384,7 @@ public class MaterialCalendarView extends ViewGroup {
 
         // Adapter is created while parsing the TypedArray attrs, so setup has to happen after
         adapter.setTitleFormatter(DEFAULT_TITLE_FORMATTER);
+        setupTopBar(shouldHideTopBar());
         setupChildren();
 
         currentMonth = CalendarDay.today();
@@ -399,12 +401,34 @@ public class MaterialCalendarView extends ViewGroup {
         }
     }
 
-    private void setupChildren() {
+    /**
+     * Sets whether or not the top bar will be added to the layout
+     * If this is set to false, the top bar will still be initialized and inflated, but it will not
+     * be added to the layout. This is false by default.
+     * This value is also used to evaluate whether or not the top bar will be visible, and whether
+     * or not an extra row will be drawn during {@link #onMeasure(int, int)}
+     *
+     * @param shouldHideTopbar boolean of whether or not the top bar will be added
+     * @see #getTopbarVisible()
+     */
+    public void setHideTopBar(boolean shouldHideTopbar) {
+        this.shouldHideTopbar = shouldHideTopbar;
+        requestLayout();
+    }
+
+    private boolean shouldHideTopBar() {
+        return shouldHideTopbar;
+    }
+
+    public View getTopBar() {
+        return topbar;
+    }
+
+    private void setupTopBar(boolean hideTopBar) {
         topbar = new LinearLayout(getContext());
         topbar.setOrientation(LinearLayout.HORIZONTAL);
         topbar.setClipChildren(false);
         topbar.setClipToPadding(false);
-        addView(topbar, new LayoutParams(1));
 
         buttonPast.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         topbar.addView(buttonPast, new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1));
@@ -416,7 +440,12 @@ public class MaterialCalendarView extends ViewGroup {
 
         buttonFuture.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         topbar.addView(buttonFuture, new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1));
+        if (hideTopBar) {
+            addView(topbar, new LayoutParams(1));
+        }
+    }
 
+    private void setupChildren() {
         pager.setId(R.id.mcv_pager);
         pager.setOffscreenPageLimit(1);
         addView(pager, new LayoutParams(calendarMode.visibleWeeksCount + DAY_NAMES_ROW));
@@ -1052,7 +1081,7 @@ public class MaterialCalendarView extends ViewGroup {
      * @return true if the topbar is visible
      */
     public boolean getTopbarVisible() {
-        return topbar.getVisibility() == View.VISIBLE;
+        return !shouldHideTopbar && topbar.getVisibility() == View.VISIBLE;
     }
 
     @Override
@@ -1179,8 +1208,8 @@ public class MaterialCalendarView extends ViewGroup {
             out.writeByte((byte) (cacheCurrentPosition ? 1 : 0));
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+        public static final Creator<SavedState> CREATOR
+                = new Creator<SavedState>() {
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
             }
@@ -1845,7 +1874,7 @@ public class MaterialCalendarView extends ViewGroup {
          * Uses the java.util.Calendar day constants.
          *
          * @param day The first day of the week as a java.util.Calendar day constant.
-         * @see java.util.Calendar
+         * @see Calendar
          */
         public StateBuilder setFirstDayOfWeek(int day) {
             this.firstDayOfWeek = day;

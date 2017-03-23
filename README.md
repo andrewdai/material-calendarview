@@ -4,6 +4,7 @@ Major Change in 1.5.0
 ---------------------
 * Breaking Change: Allow decorators to accept a data set and moved logic to decorate the facade into the day view invalidate. This gives more flexibility to the decorator to decide how to decorate the facade when applying to the day view, and enables the ability to use different facades within the same decorator, reducing the need to add more decorators.
 * Breaking Change: Day views are disabled by default
+* New: Add ability to explicitly state whether or not the top bar should be attached to the calendar
 
 Documentation
 -------------
