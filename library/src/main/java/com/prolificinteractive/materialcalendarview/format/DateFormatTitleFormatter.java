@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
- * Format using a {@linkplain java.text.DateFormat} instance.
+ * Format using a {@linkplain DateFormat} instance.
  */
 public class DateFormatTitleFormatter implements TitleFormatter {
 

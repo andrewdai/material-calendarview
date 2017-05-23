@@ -1,6 +1,9 @@
 package com.prolificinteractive.materialcalendarview;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -179,9 +182,14 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
             for (DayViewDecorator decorator : decorators) {
                 if (decorator.shouldDecorate(dayView.getDate())) {
                     decorator.decorate(decorator.getData(), facade);
+                    dayView.applyFacade(facade);
+                } else {
+                    // manually set the facade to transparent bg and black text
+                    facade.setSelectionDrawable(ContextCompat.getDrawable(getContext(), R.drawable.transparent_bg));
+                    facade.addSpan(new ForegroundColorSpan(Color.BLACK));
+                    dayView.applyFacade(facade);
                 }
             }
-            dayView.applyFacade(facade);
         }
     }
 

@@ -27,7 +27,7 @@ public final class CalendarDay implements Parcelable {
      * Get a new instance set to the specified day
      *
      * @param year  new instance's year
-     * @param month new instance's month as defined by {@linkplain java.util.Calendar}
+     * @param month new instance's month as defined by {@linkplain Calendar}
      * @param day   new instance's day of month
      * @return CalendarDay set to the specified date
      */
@@ -105,7 +105,7 @@ public final class CalendarDay implements Parcelable {
 
     /**
      * @param year  new instance's year
-     * @param month new instance's month as defined by {@linkplain java.util.Calendar}
+     * @param month new instance's month as defined by {@linkplain Calendar}
      * @param day   new instance's day of month
      * @see CalendarDay#from(Calendar)
      */

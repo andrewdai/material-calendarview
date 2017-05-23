@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -377,7 +378,7 @@ public class MaterialCalendarView extends ViewGroup {
                     true
             ));
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.getStackTraceString(e);
         } finally {
             a.recycle();
         }
@@ -627,8 +628,6 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     /**
-     * TODO should this be public?
-     *
      * @return true if there is a future month that can be shown
      */
     public boolean canGoForward() {
@@ -647,8 +646,6 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     /**
-     * TODO should this be public?
-     *
      * @return true if there is a previous month that can be shown
      */
     public boolean canGoBack() {

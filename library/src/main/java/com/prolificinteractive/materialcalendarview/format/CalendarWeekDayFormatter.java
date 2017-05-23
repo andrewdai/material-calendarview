@@ -6,9 +6,9 @@ import java.util.Calendar;
 import java.util.Locale;
 
 /**
- * Use a {@linkplain java.util.Calendar} to get week day labels.
+ * Use a {@linkplain Calendar} to get week day labels.
  *
- * @see java.util.Calendar#getDisplayName(int, int, java.util.Locale)
+ * @see Calendar#getDisplayName(int, int, Locale)
  */
 public class CalendarWeekDayFormatter implements WeekDayFormatter {
 
