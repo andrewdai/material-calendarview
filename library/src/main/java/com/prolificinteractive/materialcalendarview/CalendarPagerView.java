@@ -1,10 +1,8 @@
 package com.prolificinteractive.materialcalendarview;
 
-import android.graphics.Color;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -17,6 +15,7 @@ import com.prolificinteractive.materialcalendarview.format.WeekDayFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.SHOW_DEFAULTS;
@@ -39,7 +38,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     private CalendarDay maxDate = null;
     private int firstDayOfWeek;
 
-    private final Collection<DayView> dayViews = new ArrayList<>();
+    private final Collection<DayView2> dayViews = new ArrayList<>();
 
     public CalendarPagerView(@NonNull MaterialCalendarView view,
                              CalendarDay firstViewDay,
@@ -65,10 +64,12 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
         }
     }
 
-    protected void addDayView(Collection<DayView> dayViews, Calendar calendar) {
-        CalendarDay day = CalendarDay.from(calendar);
-        DayView dayView = new DayView(getContext(), day);
-        dayView.setOnClickListener(this);
+    protected void addDayView(Collection<DayView2> dayViews, Calendar calendar) {
+        DayView2 dayView = (DayView2) LayoutInflater.from(getContext()).inflate(R.layout.custom_day_view, this, false);
+        dayView.init(CalendarDay.from(calendar));
+        if (!CalendarDay.from(new Date()).isBefore(dayView.getDate())) {
+            dayView.setOnClickListener(this);
+        }
         dayViews.add(dayView);
         addView(dayView, new LayoutParams());
 
@@ -94,7 +95,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
         return firstDayOfWeek;
     }
 
-    protected abstract void buildDayViews(Collection<DayView> dayViews, Calendar calendar);
+    protected abstract void buildDayViews(Collection<DayView2> dayViews, Calendar calendar);
 
     protected abstract boolean isDayEnabled(CalendarDay day);
 
@@ -113,7 +114,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     public void setDateTextAppearance(int taId) {
-        for (DayView dayView : dayViews) {
+        for (DayView2 dayView : dayViews) {
             dayView.setTextAppearance(getContext(), taId);
         }
     }
@@ -124,14 +125,16 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     public void setSelectionEnabled(boolean selectionEnabled) {
-        for (DayView dayView : dayViews) {
-            dayView.setOnClickListener(selectionEnabled ? this : null);
-            dayView.setClickable(selectionEnabled);
+        for (DayView2 dayView : dayViews) {
+            if (!CalendarDay.from(new Date()).isBefore(dayView.getDate())) {
+                dayView.setOnClickListener(selectionEnabled ? this : null);
+                dayView.setClickable(selectionEnabled);
+            }
         }
     }
 
     public void setSelectionColor(int color) {
-        for (DayView dayView : dayViews) {
+        for (DayView2 dayView : dayViews) {
             dayView.setSelectionColor(color);
         }
     }
@@ -143,7 +146,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     public void setDayFormatter(DayFormatter formatter) {
-        for (DayView dayView : dayViews) {
+        for (DayView2 dayView : dayViews) {
             dayView.setDayFormatter(formatter);
         }
     }
@@ -159,15 +162,15 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     public void setSelectedDates(Collection<CalendarDay> dates) {
-        for (DayView dayView : dayViews) {
+        for (DayView2 dayView : dayViews) {
             CalendarDay day = dayView.getDate();
-            dayView.setChecked(dates != null && dates.contains(day));
+            dayView.setSelected(dates != null && dates.contains(day));
         }
         postInvalidate();
     }
 
     protected void updateUi() {
-        for (DayView dayView : dayViews) {
+        for (DayView2 dayView : dayViews) {
             CalendarDay day = dayView.getDate();
             dayView.setupSelection(
                     showOtherDates, day.isInRange(minDate, maxDate), isDayEnabled(day));
@@ -177,17 +180,14 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
 
     protected void invalidateDecorators() {
         final DayViewFacade facade = new DayViewFacade();
-        for (DayView dayView : dayViews) {
+        for (DayView2 dayView : dayViews) {
             facade.reset();
             for (DayViewDecorator decorator : decorators) {
                 if (decorator.shouldDecorate(dayView.getDate())) {
                     decorator.decorate(decorator.getData(), facade);
                     dayView.applyFacade(facade);
                 } else {
-                    // manually set the facade to transparent bg and black text
-                    facade.setSelectionDrawable(ContextCompat.getDrawable(getContext(), R.drawable.transparent_bg));
-                    facade.addSpan(new ForegroundColorSpan(Color.BLACK));
-                    dayView.applyFacade(facade);
+                    dayView.setEnabled(false);
                 }
             }
         }
@@ -195,9 +195,12 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if (v instanceof DayView) {
-            final DayView dayView = (DayView) v;
-            mcv.onDateClicked(dayView);
+        if (v instanceof DayView2) {
+            for (DayView2 dayView : dayViews) {
+                dayView.setSelected(false);
+            }
+            v.setSelected(true);
+            mcv.onDateClicked((DayView2) v);
         }
     }
 

@@ -3,4 +3,5 @@
     <string name="previous">Go to previous</string>
     <string name="next">Go to next</string>
     <string name="calendar">Calendar</string>
+    <string name="day_view_bubble_content_description">This day\'s latest pain severity</string>
 </resources>

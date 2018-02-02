@@ -1499,7 +1499,7 @@ public class MaterialCalendarView extends ViewGroup {
      *
      * @param dayView
      */
-    protected void onDateClicked(final DayView dayView) {
+    protected void onDateClicked(final DayView2 dayView) {
         final CalendarDay currentDate = getCurrentDate();
         final CalendarDay selectedDate = dayView.getDate();
         final int currentMonth = currentDate.getMonth();
@@ -1514,8 +1514,7 @@ public class MaterialCalendarView extends ViewGroup {
                 goToNext();
             }
         }
-        onDateClicked(dayView.getDate(), !dayView.isChecked());
-
+        onDateClicked(dayView.getDate(), !dayView.isSelected());
     }
 
     /**

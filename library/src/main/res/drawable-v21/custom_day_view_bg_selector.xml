@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/ripple_subtle">
+    <item>
+        <selector>
+            <item
+                android:drawable="@drawable/day_view_pressed"
+                android:state_pressed="true"/>
+            <item
+                android:drawable="@drawable/day_view_selected"
+                android:state_selected="true"/>
+            <item android:drawable="@drawable/day_view_off"/>
+        </selector>
+    </item>
+</ripple>

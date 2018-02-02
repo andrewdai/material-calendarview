@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ripple_subtle">#22000000</color>
+
+    <color name="painscale_blue">#4990e1</color>
+    <color name="text_black">#414149</color>
+    <color name="light_grey">#cdcdcd</color>
+    <color name="off_grey">#efeeeb</color>
+</resources>
