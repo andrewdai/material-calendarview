@@ -59,7 +59,7 @@ public class WeekPagerAdapter extends CalendarPagerAdapter<WeekView> {
         public CalendarDay getItem(int position) {
             long minMillis = min.getDate().getTime();
             long millisOffset = TimeUnit.MILLISECONDS.convert(
-                    position * DAYS_IN_WEEK,
+                    position * DAYS_IN_WEEK + 1,
                     TimeUnit.DAYS);
             long positionMillis = minMillis + millisOffset;
             return CalendarDay.from(new Date(positionMillis));
@@ -82,7 +82,7 @@ public class WeekPagerAdapter extends CalendarPagerAdapter<WeekView> {
             Calendar calendar = Calendar.getInstance();
             min.copyTo(calendar);
             while (calendar.get(Calendar.DAY_OF_WEEK) != wantedFirstDayOfWeek) {
-                calendar.add(Calendar.DAY_OF_WEEK, -1);
+                calendar.add(Calendar.DAY_OF_MONTH, -1);
             }
             return CalendarDay.from(calendar);
         }

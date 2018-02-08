@@ -66,6 +66,7 @@ import java.util.List;
  * </p>
  */
 public class MaterialCalendarView extends ViewGroup {
+    private static final String TAG = "MaterialCalendarView";
 
     public final int INVALID_TILE_DIMENSION = getResources().getDimensionPixelSize(R.dimen.INVALID_DIMEN_SIZE);
 
@@ -204,8 +205,11 @@ public class MaterialCalendarView extends ViewGroup {
             titleChanger.setPreviousMonth(currentMonth);
             currentMonth = adapter.getItem(position);
             updateUi();
-
-            dispatchOnMonthChanged(currentMonth);
+            if (calendarMode == CalendarMode.MONTHS) {
+                dispatchOnMonthChanged(currentMonth);
+            } else if (calendarMode == CalendarMode.WEEKS) {
+                dispatchOnWeekChanged(currentMonth);
+            }
         }
 
         @Override
@@ -222,6 +226,7 @@ public class MaterialCalendarView extends ViewGroup {
 
     private OnDateSelectedListener listener;
     private OnMonthChangedListener monthListener;
+    private OnWeekChangedListener weekListener;
     private OnRangeSelectedListener rangeListener;
 
     CharSequence calendarContentDescription;
@@ -631,7 +636,7 @@ public class MaterialCalendarView extends ViewGroup {
      * @return true if there is a future month that can be shown
      */
     public boolean canGoForward() {
-        return pager.getCurrentItem() < (adapter.getCount() - 1);
+        return pager.getCurrentItem() < adapter.getCount();
     }
 
     /**
@@ -899,6 +904,13 @@ public class MaterialCalendarView extends ViewGroup {
         int index = adapter.getIndexForDay(day);
         pager.setCurrentItem(index, useSmoothScroll);
         updateUi();
+    }
+
+    /**
+     * @return the current mode for the calendar
+     */
+    public CalendarMode getCalendarMode() {
+        return calendarMode;
     }
 
     /**
@@ -1357,6 +1369,15 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     /**
+     * Sets the listener to be notified upon week changes.
+     *
+     * @param listener thing to be notified
+     */
+    public void setOnWeekChangedListener(OnWeekChangedListener listener) {
+        this.weekListener = listener;
+    }
+
+    /**
      * Sets the listener to be notified upon month changes.
      *
      * @param listener thing to be notified
@@ -1433,6 +1454,18 @@ public class MaterialCalendarView extends ViewGroup {
         OnMonthChangedListener l = monthListener;
         if (l != null) {
             l.onMonthChanged(MaterialCalendarView.this, day);
+        }
+    }
+
+    /**
+     * Dispatch date change events to a listener, if set
+     *
+     * @param day first day of the new month
+     */
+    protected void dispatchOnWeekChanged(final CalendarDay day) {
+        OnWeekChangedListener l = weekListener;
+        if (l != null) {
+            l.onWeekChanged(MaterialCalendarView.this, day);
         }
     }
 
@@ -1655,6 +1688,7 @@ public class MaterialCalendarView extends ViewGroup {
 
             LayoutParams p = (LayoutParams) child.getLayoutParams();
 
+            @SuppressLint("Range")
             int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
                     DEFAULT_DAYS_IN_WEEK * measureTileWidth,
                     MeasureSpec.EXACTLY
