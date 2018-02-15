@@ -188,39 +188,6 @@ public class MaterialCalendarView extends ViewGroup {
 
     private final ArrayList<DayViewDecorator> dayViewDecorators = new ArrayList<>();
 
-    private final OnClickListener onClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (v == buttonFuture) {
-                pager.setCurrentItem(pager.getCurrentItem() + 1, true);
-            } else if (v == buttonPast) {
-                pager.setCurrentItem(pager.getCurrentItem() - 1, true);
-            }
-        }
-    };
-
-    private final ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
-        @Override
-        public void onPageSelected(int position) {
-            titleChanger.setPreviousMonth(currentMonth);
-            currentMonth = adapter.getItem(position);
-            updateUi();
-            if (calendarMode == CalendarMode.MONTHS) {
-                dispatchOnMonthChanged(currentMonth);
-            } else if (calendarMode == CalendarMode.WEEKS) {
-                dispatchOnWeekChanged(currentMonth);
-            }
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-        }
-
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        }
-    };
-
     private CalendarDay minDate = null;
     private CalendarDay maxDate = null;
 
@@ -268,13 +235,45 @@ public class MaterialCalendarView extends ViewGroup {
         buttonFuture.setContentDescription(getContext().getString(R.string.next));
         pager = new CalendarPager(getContext());
 
-        buttonPast.setOnClickListener(onClickListener);
-        buttonFuture.setOnClickListener(onClickListener);
+        buttonPast.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pager.setCurrentItem(pager.getCurrentItem() - 1, true);
+            }
+        });
+        buttonFuture.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pager.setCurrentItem(pager.getCurrentItem() + 1, true);
+            }
+        });
 
         titleChanger = new TitleChanger(title);
         titleChanger.setTitleFormatter(DEFAULT_TITLE_FORMATTER);
 
-        pager.setOnPageChangeListener(pageChangeListener);
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                if (currentMonth != adapter.getItem(position)) {
+                    titleChanger.setPreviousMonth(currentMonth);
+                    currentMonth = adapter.getItem(position);
+                    updateUi();
+                    if (calendarMode == CalendarMode.MONTHS) {
+                        dispatchOnMonthChanged(currentMonth);
+                    } else if (calendarMode == CalendarMode.WEEKS) {
+                        dispatchOnWeekChanged(currentMonth);
+                    }
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state1) {
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+        });
         pager.setPageTransformer(false, new ViewPager.PageTransformer() {
             @Override
             public void transformPage(View page, float position) {
@@ -1990,6 +1989,7 @@ public class MaterialCalendarView extends ViewGroup {
         }
     }
 
+    @SuppressLint("WrongConstant")
     private void commit(State state) {
         // Use the calendarDayToShow to determine which date to focus on for the case of switching between month and week views
         CalendarDay calendarDayToShow = null;
@@ -2010,7 +2010,9 @@ public class MaterialCalendarView extends ViewGroup {
                 } else if (calendarMode == CalendarMode.WEEKS) {
                     // Going from weeks to months
                     Calendar lastVisibleCalendar = calendarDayToShow.getCalendar();
-                    lastVisibleCalendar.add(Calendar.DAY_OF_WEEK, 6);
+                    while (lastVisibleCalendar.get(Calendar.DAY_OF_WEEK) != (lastVisibleCalendar.getFirstDayOfWeek() + 6)) {
+                        lastVisibleCalendar.add(Calendar.DATE, 1);
+                    }
                     CalendarDay lastVisibleCalendarDay = CalendarDay.from(lastVisibleCalendar);
                     if (currentlySelectedDate != null &&
                             (currentlySelectedDate.equals(calendarDayToShow) || currentlySelectedDate.equals(lastVisibleCalendarDay) ||

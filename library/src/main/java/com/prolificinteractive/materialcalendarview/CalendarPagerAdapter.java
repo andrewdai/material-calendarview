@@ -2,6 +2,7 @@ package com.prolificinteractive.materialcalendarview;
 
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,6 +20,7 @@ import java.util.List;
  * Pager adapter backing the calendar view
  */
 abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAdapter {
+    private static final String TAG = "CalendarPagerAdapter";
 
     private final ArrayDeque<V> currentViews;
 

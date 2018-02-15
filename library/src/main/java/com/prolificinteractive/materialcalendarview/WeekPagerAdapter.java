@@ -1,13 +1,14 @@
 package com.prolificinteractive.materialcalendarview;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @Experimental
 public class WeekPagerAdapter extends CalendarPagerAdapter<WeekView> {
+    private static final String TAG = "WeekPagerAdapter";
 
     public WeekPagerAdapter(MaterialCalendarView mcv) {
         super(mcv);
@@ -36,7 +37,7 @@ public class WeekPagerAdapter extends CalendarPagerAdapter<WeekView> {
 
     public static class Weekly implements DateRangeIndex {
 
-        private static final int DAYS_IN_WEEK = 7;
+        private static final float DAYS_IN_WEEK = 7f;
         private final CalendarDay min;
         private final int count;
 
@@ -57,21 +58,19 @@ public class WeekPagerAdapter extends CalendarPagerAdapter<WeekView> {
 
         @Override
         public CalendarDay getItem(int position) {
-            long minMillis = min.getDate().getTime();
-            long millisOffset = TimeUnit.MILLISECONDS.convert(
-                    position * DAYS_IN_WEEK + 1,
-                    TimeUnit.DAYS);
-            long positionMillis = minMillis + millisOffset;
-            return CalendarDay.from(new Date(positionMillis));
+            Calendar instance = Calendar.getInstance();
+            instance.setTimeInMillis(min.getDate().getTime());
+            instance.add(Calendar.DATE, (int) (position * DAYS_IN_WEEK));
+            return CalendarDay.from(instance);
         }
 
         private int weekNumberDifference(@NonNull CalendarDay min, @NonNull CalendarDay max) {
             long millisDiff = max.getDate().getTime() - min.getDate().getTime();
 
-            int dstOffsetMax = max.getCalendar().get(Calendar.DST_OFFSET);
-            int dstOffsetMin = min.getCalendar().get(Calendar.DST_OFFSET);
+            int timeOffsetMax = max.getCalendar().get(Calendar.DST_OFFSET) + max.getCalendar().get(Calendar.ZONE_OFFSET);
+            int timeOffsetMin = min.getCalendar().get(Calendar.DST_OFFSET) + min.getCalendar().get(Calendar.ZONE_OFFSET);
 
-            long dayDiff = TimeUnit.DAYS.convert(millisDiff + dstOffsetMax - dstOffsetMin, TimeUnit.MILLISECONDS);
+            long dayDiff = TimeUnit.DAYS.convert(millisDiff + timeOffsetMax - timeOffsetMin, TimeUnit.MILLISECONDS);
             return (int) (dayDiff / DAYS_IN_WEEK);
         }
 
