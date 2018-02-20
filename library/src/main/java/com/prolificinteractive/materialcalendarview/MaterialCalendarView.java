@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -174,6 +175,7 @@ public class MaterialCalendarView extends ViewGroup {
     private final TitleChanger titleChanger;
 
     private final TextView title;
+    private final FrameLayout titleContainer;
     private final DirectionButton buttonPast;
     private final DirectionButton buttonFuture;
     private final CalendarPager pager;
@@ -207,7 +209,7 @@ public class MaterialCalendarView extends ViewGroup {
     private int selectionMode = SELECTION_MODE_SINGLE;
     private boolean allowClickDaysOutsideCurrentMonth = true;
     private int firstDayOfWeek;
-    private boolean shouldHideTopbar;
+    private boolean shouldHideTopBar;
 
     private State state;
 
@@ -230,6 +232,7 @@ public class MaterialCalendarView extends ViewGroup {
 
         buttonPast = new DirectionButton(getContext());
         buttonPast.setContentDescription(getContext().getString(R.string.previous));
+        titleContainer = new FrameLayout(getContext());
         title = new TextView(getContext());
         buttonFuture = new DirectionButton(getContext());
         buttonFuture.setContentDescription(getContext().getString(R.string.next));
@@ -389,7 +392,7 @@ public class MaterialCalendarView extends ViewGroup {
 
         // Adapter is created while parsing the TypedArray attrs, so setup has to happen after
         adapter.setTitleFormatter(DEFAULT_TITLE_FORMATTER);
-        setupTopBar(shouldHideTopBar());
+        setupTopBar(shouldHideTopBar);
         setupChildren();
 
         currentMonth = CalendarDay.today();
@@ -417,12 +420,16 @@ public class MaterialCalendarView extends ViewGroup {
      * @see #getTopbarVisible()
      */
     public void setHideTopBar(boolean shouldHideTopbar) {
-        this.shouldHideTopbar = shouldHideTopbar;
+        this.shouldHideTopBar = shouldHideTopbar;
         requestLayout();
     }
 
-    private boolean shouldHideTopBar() {
-        return shouldHideTopbar;
+    public void setupTitleBar(Drawable titleDrawable) {
+        if (titleDrawable != null) {
+            title.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, titleDrawable, null);
+            title.setCompoundDrawablePadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getContext().getResources().getDisplayMetrics()));
+        }
+        requestLayout();
     }
 
     public View getTopBar() {
@@ -438,8 +445,10 @@ public class MaterialCalendarView extends ViewGroup {
         buttonPast.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         topbar.addView(buttonPast, new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1));
 
+        titleContainer.setBackgroundResource(R.drawable.transparent_bg_selector);
+        titleContainer.addView(title, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER));
         title.setGravity(Gravity.CENTER);
-        topbar.addView(title, new LinearLayout.LayoutParams(
+        topbar.addView(titleContainer, new LinearLayout.LayoutParams(
                 0, LayoutParams.MATCH_PARENT, DEFAULT_DAYS_IN_WEEK - 2
         ));
 
@@ -1089,7 +1098,7 @@ public class MaterialCalendarView extends ViewGroup {
      * @return true if the topbar is visible
      */
     public boolean getTopbarVisible() {
-        return !shouldHideTopbar && topbar.getVisibility() == View.VISIBLE;
+        return !shouldHideTopBar && topbar.getVisibility() == View.VISIBLE;
     }
 
     @Override
@@ -1400,7 +1409,7 @@ public class MaterialCalendarView extends ViewGroup {
      * @param listener Listener to be notified.
      */
     public void setOnTitleClickListener(final OnClickListener listener) {
-        title.setOnClickListener(listener);
+        titleContainer.setOnClickListener(listener);
     }
 
     /**

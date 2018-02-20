@@ -5,10 +5,11 @@ android {
     buildToolsVersion "26.0.2"
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 17
         targetSdkVersion 27
         versionCode 21
         versionName '1.5.0'
+        vectorDrawables.useSupportLibrary = true
     }
 
     lintOptions {
@@ -16,8 +17,13 @@ android {
     }
 }
 
+ext {
+    androidLibVersion = '27.0.2'
+}
+
 dependencies {
-    implementation 'com.android.support:support-v4:27.0.2'
+    implementation "com.android.support:support-v4:${androidLibVersion}"
+    implementation "com.android.support:design:${androidLibVersion}"
 
     testImplementation 'junit:junit:4.12'
 }
