@@ -2,7 +2,6 @@ package com.prolificinteractive.materialcalendarview;
 
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -38,7 +37,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     private CalendarDay maxDate = null;
     private int firstDayOfWeek;
 
-    private final Collection<DayView2> dayViews = new ArrayList<>();
+    private final Collection<DayView> dayViews = new ArrayList<>();
 
     public CalendarPagerView(@NonNull MaterialCalendarView view,
                              CalendarDay firstViewDay,
@@ -64,9 +63,8 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
         }
     }
 
-    protected void addDayView(Collection<DayView2> dayViews, Calendar calendar) {
-        DayView2 dayView = (DayView2) LayoutInflater.from(getContext()).inflate(R.layout.custom_day_view, this, false);
-        dayView.init(CalendarDay.from(calendar));
+    protected void addDayView(Collection<DayView> dayViews, Calendar calendar) {
+        DayView dayView = new DayView(getContext(), CalendarDay.from(calendar));
         if (!CalendarDay.from(new Date()).isBefore(dayView.getDate())) {
             dayView.setOnClickListener(this);
         }
@@ -95,7 +93,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
         return firstDayOfWeek;
     }
 
-    protected abstract void buildDayViews(Collection<DayView2> dayViews, Calendar calendar);
+    protected abstract void buildDayViews(Collection<DayView> dayViews, Calendar calendar);
 
     protected abstract boolean isDayEnabled(CalendarDay day);
 
@@ -114,7 +112,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     public void setDateTextAppearance(int taId) {
-        for (DayView2 dayView : dayViews) {
+        for (DayView dayView : dayViews) {
             dayView.setTextAppearance(getContext(), taId);
         }
     }
@@ -125,17 +123,11 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     public void setSelectionEnabled(boolean selectionEnabled) {
-        for (DayView2 dayView : dayViews) {
+        for (DayView dayView : dayViews) {
             if (!CalendarDay.from(new Date()).isBefore(dayView.getDate())) {
                 dayView.setOnClickListener(selectionEnabled ? this : null);
                 dayView.setClickable(selectionEnabled);
             }
-        }
-    }
-
-    public void setSelectionColor(int color) {
-        for (DayView2 dayView : dayViews) {
-            dayView.setSelectionColor(color);
         }
     }
 
@@ -146,7 +138,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     public void setDayFormatter(DayFormatter formatter) {
-        for (DayView2 dayView : dayViews) {
+        for (DayView dayView : dayViews) {
             dayView.setDayFormatter(formatter);
         }
     }
@@ -162,7 +154,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     public void setSelectedDates(Collection<CalendarDay> dates) {
-        for (DayView2 dayView : dayViews) {
+        for (DayView dayView : dayViews) {
             CalendarDay day = dayView.getDate();
             dayView.setSelected(dates != null && dates.contains(day));
         }
@@ -170,7 +162,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
     }
 
     protected void updateUi() {
-        for (DayView2 dayView : dayViews) {
+        for (DayView dayView : dayViews) {
             CalendarDay day = dayView.getDate();
             dayView.setupSelection(
                     showOtherDates, day.isInRange(minDate, maxDate), isDayEnabled(day));
@@ -180,7 +172,7 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
 
     protected void invalidateDecorators() {
         final DayViewFacade facade = new DayViewFacade();
-        for (DayView2 dayView : dayViews) {
+        for (DayView dayView : dayViews) {
             facade.reset();
             for (DayViewDecorator decorator : decorators) {
                 if (decorator.shouldDecorate(dayView.getDate())) {
@@ -195,12 +187,12 @@ abstract class CalendarPagerView extends ViewGroup implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if (v instanceof DayView2) {
-            for (DayView2 dayView : dayViews) {
+        if (v instanceof DayView) {
+            for (DayView dayView : dayViews) {
                 dayView.setSelected(false);
             }
             v.setSelected(true);
-            mcv.onDateClicked((DayView2) v);
+            mcv.onDateClicked((DayView) v);
         }
     }
 

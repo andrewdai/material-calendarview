@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Collection;
 
 /**
- * Display a week of {@linkplain DayView2}s and
+ * Display a week of {@linkplain DayView}s and
  * seven {@linkplain WeekDayView}s.
  */
 @Experimental
@@ -21,7 +21,7 @@ public class WeekView extends CalendarPagerView {
     }
 
     @Override
-    protected void buildDayViews(Collection<DayView2> dayViews, Calendar calendar) {
+    protected void buildDayViews(Collection<DayView> dayViews, Calendar calendar) {
         for (int i = 0; i < DEFAULT_DAYS_IN_WEEK; i++) {
             addDayView(dayViews, calendar);
         }

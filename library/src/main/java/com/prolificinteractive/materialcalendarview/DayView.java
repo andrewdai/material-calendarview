@@ -1,24 +1,20 @@
 package com.prolificinteractive.materialcalendarview;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.graphics.drawable.shapes.OvalShape;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.CheckedTextView;
 
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView.ShowOtherDates;
 import com.prolificinteractive.materialcalendarview.format.DayFormatter;
@@ -33,15 +29,10 @@ import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.
  * Display one day of a {@linkplain MaterialCalendarView}
  */
 @SuppressLint("ViewConstructor")
-class DayView extends CheckedTextView {
+class DayView extends android.support.v7.widget.AppCompatCheckedTextView {
 
     private CalendarDay date;
-    private int selectionColor = Color.GRAY;
 
-    private final int fadeTime;
-    private Drawable customBackground = null;
-    private Drawable selectionDrawable;
-    private Drawable mCircleDrawable;
     private DayFormatter formatter = DayFormatter.DEFAULT;
 
     private boolean isInRange = true;
@@ -49,26 +40,48 @@ class DayView extends CheckedTextView {
     private boolean isDecoratedDisabled = false;
     @ShowOtherDates
     private int showOtherDates = MaterialCalendarView.SHOW_DEFAULTS;
+    private Drawable bgDrawable;
 
-    public DayView(Context context, CalendarDay day) {
+    public DayView(Context context, CalendarDay date) {
         super(context);
 
-        fadeTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-        setSelectionColor(this.selectionColor);
-
         setGravity(Gravity.CENTER);
+        setPadding(0, 0, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getContext().getResources().getDisplayMetrics()));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             setTextAlignment(TEXT_ALIGNMENT_CENTER);
         }
 
-        setDay(day);
+        setDay(date);
     }
 
     public void setDay(CalendarDay date) {
         this.date = date;
         setText(getLabel());
+        if (CalendarDay.today().equals(date)) {
+            setTextColor(new ColorStateList(new int[][]{
+                    new int[]{android.R.attr.state_enabled}, // enabled
+                    new int[]{-android.R.attr.state_enabled}, // disabled
+                    new int[]{android.R.attr.state_selected}  // selected
+            }, new int[]{
+                    ContextCompat.getColor(getContext(), R.color.painscale_blue),
+                    ContextCompat.getColor(getContext(), R.color.off_grey),
+                    ContextCompat.getColor(getContext(), android.R.color.white)
+            }));
+
+            bgDrawable = ContextCompat.getDrawable(getContext(), R.drawable.custom_today_view_bg_selector);
+        } else {
+            setTextColor(new ColorStateList(new int[][]{
+                    new int[]{android.R.attr.state_selected}, // selected
+                    new int[]{-android.R.attr.state_enabled}, // disabled
+                    new int[]{android.R.attr.state_enabled}   // enabled
+            }, new int[]{
+                    ContextCompat.getColor(getContext(), android.R.color.white),
+                    ContextCompat.getColor(getContext(), R.color.off_grey),
+                    ContextCompat.getColor(getContext(), R.color.text_black)
+            }));
+            bgDrawable = ContextCompat.getDrawable(getContext(), R.drawable.custom_day_view_bg_selector);
+        }
     }
 
     /**
@@ -95,35 +108,6 @@ class DayView extends CheckedTextView {
     @NonNull
     public String getLabel() {
         return formatter.format(date);
-    }
-
-    public void setSelectionColor(int color) {
-        this.selectionColor = color;
-        regenerateBackground();
-    }
-
-    /**
-     * @param drawable custom selection drawable
-     */
-    public void setSelectionDrawable(Drawable drawable) {
-        if (drawable == null) {
-            this.selectionDrawable = null;
-        } else {
-            this.selectionDrawable = drawable.getConstantState().newDrawable(getResources());
-        }
-        regenerateBackground();
-    }
-
-    /**
-     * @param drawable background to draw behind everything else
-     */
-    public void setCustomBackground(Drawable drawable) {
-        if (drawable == null) {
-            this.customBackground = null;
-        } else {
-            this.customBackground = drawable.getConstantState().newDrawable(getResources());
-        }
-        invalidate();
     }
 
     public CalendarDay getDate() {
@@ -153,8 +137,7 @@ class DayView extends CheckedTextView {
         }
 
         if (!isInMonth && shouldBeVisible) {
-            setTextColor(getTextColors().getColorForState(
-                    new int[]{-android.R.attr.state_enabled}, Color.GRAY));
+            setTextColor(Color.GRAY);
         }
         setVisibility(shouldBeVisible ? View.VISIBLE : View.INVISIBLE);
     }
@@ -166,70 +149,7 @@ class DayView extends CheckedTextView {
         setEnabled();
     }
 
-    private final Rect tempRect = new Rect();
-    private final Rect circleDrawableRect = new Rect();
-
-    @Override
-    protected void onDraw(@NonNull Canvas canvas) {
-        if (customBackground != null) {
-            customBackground.setBounds(tempRect);
-            customBackground.setState(getDrawableState());
-            customBackground.draw(canvas);
-        }
-
-        mCircleDrawable.setBounds(circleDrawableRect);
-
-        super.onDraw(canvas);
-    }
-
-    private void regenerateBackground() {
-        if (selectionDrawable != null) {
-            setBackgroundDrawable(selectionDrawable);
-        } else {
-            mCircleDrawable = generateBackground(selectionColor, fadeTime, circleDrawableRect);
-            setBackgroundDrawable(mCircleDrawable);
-        }
-    }
-
-    private static Drawable generateBackground(int color, int fadeTime, Rect bounds) {
-        StateListDrawable drawable = new StateListDrawable();
-        drawable.setExitFadeDuration(fadeTime);
-        drawable.addState(new int[]{android.R.attr.state_checked}, generateCircleDrawable(color));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            drawable.addState(new int[]{android.R.attr.state_pressed}, generateRippleDrawable(color, bounds));
-        } else {
-            drawable.addState(new int[]{android.R.attr.state_pressed}, generateCircleDrawable(color));
-        }
-
-        drawable.addState(new int[]{}, generateCircleDrawable(Color.TRANSPARENT));
-
-        return drawable;
-    }
-
-    private static Drawable generateCircleDrawable(final int color) {
-        ShapeDrawable drawable = new ShapeDrawable(new OvalShape());
-        drawable.getPaint().setColor(color);
-        return drawable;
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static Drawable generateRippleDrawable(final int color, Rect bounds) {
-        ColorStateList list = ColorStateList.valueOf(color);
-        Drawable mask = generateCircleDrawable(Color.WHITE);
-        RippleDrawable rippleDrawable = new RippleDrawable(list, null, mask);
-//        API 21
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
-            rippleDrawable.setBounds(bounds);
-        }
-
-//        API 22. Technically harmless to leave on for API 21 and 23, but not worth risking for 23+
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP_MR1) {
-            int center = (bounds.left + bounds.right) / 2;
-            rippleDrawable.setHotspotBounds(center, bounds.top, center, bounds.bottom);
-        }
-
-        return rippleDrawable;
-    }
+    private final Rect bgRect = new Rect();
 
     /**
      * @param facade apply the facade to us
@@ -237,9 +157,6 @@ class DayView extends CheckedTextView {
     void applyFacade(DayViewFacade facade) {
         this.isDecoratedDisabled = facade.areDaysDisabled();
         setEnabled();
-
-        setCustomBackground(facade.getBackgroundDrawable());
-        setSelectionDrawable(facade.getSelectionDrawable());
 
         // Facade has spans
         List<DayViewFacade.Span> spans = facade.getSpans();
@@ -257,6 +174,17 @@ class DayView extends CheckedTextView {
         }
     }
 
+    private void regenerateBackground() {
+        setBackground(bgDrawable);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        bgDrawable.setBounds(bgRect);
+
+        super.onDraw(canvas);
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
@@ -265,6 +193,7 @@ class DayView extends CheckedTextView {
     }
 
     private void calculateBounds(int width, int height) {
+        final int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getContext().getResources().getDisplayMetrics());
         final int radius = Math.min(height, width);
         final int offset = Math.abs(height - width) / 2;
 
@@ -272,11 +201,9 @@ class DayView extends CheckedTextView {
         final int circleOffset = Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP ? offset / 2 : offset;
 
         if (width >= height) {
-            tempRect.set(offset, 0, radius + offset, height);
-            circleDrawableRect.set(circleOffset, 0, radius + circleOffset, height);
+            bgRect.set(circleOffset + padding, padding, radius + circleOffset - padding, height - padding);
         } else {
-            tempRect.set(0, offset, width, radius + offset);
-            circleDrawableRect.set(0, circleOffset, width, radius + circleOffset);
+            bgRect.set(padding, circleOffset + padding, width - padding, radius + circleOffset - padding);
         }
     }
 }

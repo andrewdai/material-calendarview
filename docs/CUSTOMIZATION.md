@@ -75,14 +75,6 @@ Avaliable flags are:
 There are similar constants on `MaterialCalendarView` such as `MaterialCalendarView.SHOW_DECORATED_DISABLED`.
 
 
-## Selection Color
-
-The default color of the calendar selector is the one set referenced by `?android:attr/colorAccent` on 5.0+ or `?attr/colorAccent` from the AppCompat library (black as a last resort).
-You can provide a custom color by setting `mcv_selectionColor` in xml, or by calling `setSelectionColor()`.
-
-If you want more control than just color, you can use the [decorator api](DECORATORS.md) to set a [custom selector](CUSTOM_SELECTORS.md).
-
-
 ## Topbar Options
 
 ### Visibility

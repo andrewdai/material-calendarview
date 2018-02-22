@@ -345,13 +345,6 @@ public class MaterialCalendarView extends ViewGroup {
             }
             setRightArrowMask(rightMask);
 
-            setSelectionColor(
-                    a.getColor(
-                            R.styleable.MaterialCalendarView_mcv_selectionColor,
-                            getThemeAccentColor(context)
-                    )
-            );
-
             CharSequence[] array = a.getTextArray(R.styleable.MaterialCalendarView_mcv_weekDayLabels);
             if (array != null) {
                 setWeekDayFormatter(new ArrayWeekDayFormatter(array));
@@ -401,7 +394,6 @@ public class MaterialCalendarView extends ViewGroup {
         if (isInEditMode()) {
             removeView(pager);
             MonthView monthView = new MonthView(this, currentMonth, getFirstDayOfWeek());
-            monthView.setSelectionColor(getSelectionColor());
             monthView.setDateTextAppearance(adapter.getDateTextAppearance());
             monthView.setWeekDayTextAppearance(adapter.getWeekDayTextAppearance());
             monthView.setShowOtherDates(getShowOtherDates());
@@ -663,22 +655,6 @@ public class MaterialCalendarView extends ViewGroup {
      */
     public boolean canGoBack() {
         return pager.getCurrentItem() > 0;
-    }
-
-    /**
-     * @return the color used for the selection
-     */
-    public int getSelectionColor() {
-        return accentColor;
-    }
-
-    /**
-     * @param color The selection color
-     */
-    public void setSelectionColor(int color) {
-        accentColor = color;
-        adapter.setSelectionColor(color);
-        invalidate();
     }
 
     /**
@@ -1104,7 +1080,6 @@ public class MaterialCalendarView extends ViewGroup {
     @Override
     protected Parcelable onSaveInstanceState() {
         SavedState ss = new SavedState(super.onSaveInstanceState());
-        ss.color = getSelectionColor();
         ss.dateTextAppearance = adapter.getDateTextAppearance();
         ss.weekDayTextAppearance = adapter.getWeekDayTextAppearance();
         ss.showOtherDates = getShowOtherDates();
@@ -1137,7 +1112,6 @@ public class MaterialCalendarView extends ViewGroup {
                 .isCacheCalendarPositionEnabled(ss.cacheCurrentPosition)
                 .commit();
 
-        setSelectionColor(ss.color);
         setDateTextAppearance(ss.dateTextAppearance);
         setWeekDayTextAppearance(ss.weekDayTextAppearance);
         setShowOtherDates(ss.showOtherDates);
@@ -1178,8 +1152,6 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     public static class SavedState extends BaseSavedState {
-
-        int color = 0;
         int dateTextAppearance = 0;
         int weekDayTextAppearance = 0;
         int showOtherDates = SHOW_DEFAULTS;
@@ -1205,7 +1177,6 @@ public class MaterialCalendarView extends ViewGroup {
         @Override
         public void writeToParcel(@NonNull Parcel out, int flags) {
             super.writeToParcel(out, flags);
-            out.writeInt(color);
             out.writeInt(dateTextAppearance);
             out.writeInt(weekDayTextAppearance);
             out.writeInt(showOtherDates);
@@ -1238,7 +1209,6 @@ public class MaterialCalendarView extends ViewGroup {
 
         private SavedState(Parcel in) {
             super(in);
-            color = in.readInt();
             dateTextAppearance = in.readInt();
             weekDayTextAppearance = in.readInt();
             showOtherDates = in.readInt();
@@ -1540,7 +1510,7 @@ public class MaterialCalendarView extends ViewGroup {
      *
      * @param dayView
      */
-    protected void onDateClicked(final DayView2 dayView) {
+    protected void onDateClicked(final DayView dayView) {
         final CalendarDay currentDate = getCurrentDate();
         final CalendarDay selectedDate = dayView.getDate();
         final int currentMonth = currentDate.getMonth();
