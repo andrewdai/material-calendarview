@@ -64,8 +64,8 @@ class DayView extends android.support.v7.widget.AppCompatCheckedTextView {
                     new int[]{-android.R.attr.state_enabled}, // disabled
                     new int[]{android.R.attr.state_selected}  // selected
             }, new int[]{
-                    ContextCompat.getColor(getContext(), R.color.painscale_blue),
-                    ContextCompat.getColor(getContext(), R.color.off_grey),
+                    ContextCompat.getColor(getContext(), R.color.mcv_painscale_blue),
+                    ContextCompat.getColor(getContext(), R.color.mcv_off_grey),
                     ContextCompat.getColor(getContext(), android.R.color.white)
             }));
 
@@ -77,8 +77,8 @@ class DayView extends android.support.v7.widget.AppCompatCheckedTextView {
                     new int[]{android.R.attr.state_enabled}   // enabled
             }, new int[]{
                     ContextCompat.getColor(getContext(), android.R.color.white),
-                    ContextCompat.getColor(getContext(), R.color.off_grey),
-                    ContextCompat.getColor(getContext(), R.color.text_black)
+                    ContextCompat.getColor(getContext(), R.color.mcv_off_grey),
+                    ContextCompat.getColor(getContext(), R.color.mcv_text_black)
             }));
             bgDrawable = ContextCompat.getDrawable(getContext(), R.drawable.custom_day_view_bg_selector);
         }
